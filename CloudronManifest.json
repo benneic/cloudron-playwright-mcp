@@ -1,0 +1,30 @@
+{
+  "id": "io.benneic.playwrightmcp",
+  "title": "Playwright MCP",
+  "author": "Ben Neic <ben@benneic.com>",
+  "tagline": "Remote Playwright browser automation for MCP agents over HTTP",
+  "version": "0.0.75",
+  "website": "https://github.com/benneic/cloudron-playwright-mcp",
+  "contactEmail": "ben@benneic.com",
+  "iconUrl": "https://playwright.dev/img/playwright-logo.svg",
+  "packagerName": "Ben Neic",
+  "packagerUrl": "https://github.com/benneic",
+  "tags": [
+    "automation",
+    "ai",
+    "mcp"
+  ],
+  "mediaLinks": [],
+  "description": "file://DESCRIPTION.md",
+  "changelog": "file://CHANGELOG",
+  "postInstallMessage": "file://POSTINSTALL.md",
+  "healthCheckPath": "/health",
+  "httpPort": 8000,
+  "configurePath": "/admin",
+  "memoryLimit": 2147483648,
+  "minBoxVersion": "9.1.0",
+  "addons": {
+    "localstorage": {}
+  },
+  "manifestVersion": 2
+}

@@ -1,0 +1,4 @@
+[0.0.75]
+* Initial release packaging @playwright/mcp 0.0.75
+* HTTP MCP on port 8000 with Bearer token auth
+* Admin page at /admin for connection details

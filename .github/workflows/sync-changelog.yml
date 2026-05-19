@@ -1,0 +1,38 @@
+name: Sync changelog on Dependabot
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  changelog:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump manifest and CHANGELOG
+        run: |
+          V=$(node -p "require('./package.json').dependencies['@playwright/mcp']")
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('CloudronManifest.json', 'utf8'));
+            m.version = process.argv[1];
+            fs.writeFileSync('CloudronManifest.json', JSON.stringify(m, null, 2) + '\n');
+          " "$V"
+          { echo "[$V]"; echo "* Bump @playwright/mcp to $V"; echo ""; cat CHANGELOG; } > /tmp/c
+          mv /tmp/c CHANGELOG
+
+      - name: Commit to PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CloudronManifest.json CHANGELOG
+          git diff --staged --quiet || git commit -m "chore: sync version and changelog for Dependabot bump"
+          git push

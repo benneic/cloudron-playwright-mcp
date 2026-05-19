@@ -1,0 +1,8 @@
+.git
+.github
+.agents
+skills-lock.json
+*.md
+!DESCRIPTION.md
+!POSTINSTALL.md
+uploads

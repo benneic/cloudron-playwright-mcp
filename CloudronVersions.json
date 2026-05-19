@@ -1,0 +1,41 @@
+{
+    "stable": true,
+    "versions": {
+        "0.0.75": {
+            "manifest": {
+                "id": "io.benneic.playwrightmcp",
+                "title": "Playwright MCP",
+                "author": "Ben Neic <ben@benneic.com>",
+                "tagline": "Remote Playwright browser automation for MCP agents over HTTP",
+                "version": "0.0.75",
+                "website": "https://github.com/benneic/cloudron-playwright-mcp",
+                "contactEmail": "ben@benneic.com",
+                "iconUrl": "https://playwright.dev/img/playwright-logo.svg",
+                "packagerName": "Ben Neic",
+                "packagerUrl": "https://github.com/benneic",
+                "tags": [
+                    "automation",
+                    "ai",
+                    "mcp"
+                ],
+                "mediaLinks": [],
+                "description": "# Playwright MCP for Cloudron\n\nSelf-host [Microsoft Playwright MCP](https://playwright.dev/mcp/) on your Cloudron server so remote AI agents can automate a headless Chromium browser over the Model Context Protocol (HTTP).\n\n## Features\n\n- Streamable HTTP MCP at `/mcp` (TLS terminated by Cloudron)\n- Bearer API token generated on first start (shown on the Configure page)\n- Accessibility snapshots, screenshots, navigation, forms, network mocking, and more\n- No LLM required on the server — your agent supplies the intelligence\n- Persistent API token and browser output under `/app/data`\n\n## Requirements\n\n- Cloudron 9.1.0 or newer\n- At least 2 GB memory for the app (configured in the manifest)\n\n## Upstream\n\nBrowser automation is provided by [`@playwright/mcp`](https://www.npmjs.com/package/@playwright/mcp). This package is a thin Cloudron wrapper (nginx auth + process supervision).\n",
+                "changelog": "* Initial release packaging @playwright/mcp 0.0.75\n* HTTP MCP on port 8000 with Bearer token auth\n* Admin page at /admin for connection details",
+                "postInstallMessage": "# Playwright MCP is installed\n\n1. Open **Configure** in the Cloudron app dashboard (or visit `$CLOUDRON-APP-ORIGIN/admin`).\n2. Copy the **API token** and MCP URL.\n3. Add the server to your MCP client:\n\n```json\n{\n  \"mcpServers\": {\n    \"playwright\": {\n      \"url\": \"$CLOUDRON-APP-ORIGIN/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer YOUR_API_TOKEN\"\n      }\n    }\n  }\n}\n```\n\n## Security\n\nThis app can browse arbitrary websites and execute page scripts. Treat the API token like a password. Use a dedicated app instance and restrict network access if needed.\n\n## Catalog URL\n\nTo install on other Cloudron servers, add this community app URL in the dashboard:\n\n`https://raw.githubusercontent.com/benneic/cloudron-playwright-mcp/main/CloudronVersions.json`\n",
+                "healthCheckPath": "/health",
+                "httpPort": 8000,
+                "configurePath": "/admin",
+                "memoryLimit": 2147483648,
+                "minBoxVersion": "9.1.0",
+                "addons": {
+                    "localstorage": {}
+                },
+                "manifestVersion": 2,
+                "dockerImage": "ghcr.io/benneic/cloudron-playwright-mcp:0.0.75@sha256:placeholder"
+            },
+            "creationDate": "Tue, 19 May 2026 23:28:40 GMT",
+            "ts": "Tue, 19 May 2026 23:28:40 GMT",
+            "publishState": "published"
+        }
+    }
+}

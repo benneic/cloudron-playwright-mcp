@@ -1,0 +1,8 @@
+{
+  "name": "cloudron-playwright-mcp",
+  "private": true,
+  "description": "Cloudron package for @playwright/mcp",
+  "dependencies": {
+    "@playwright/mcp": "0.0.75"
+  }
+}

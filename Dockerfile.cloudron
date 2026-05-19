@@ -1,0 +1,31 @@
+FROM node:22-bookworm AS build
+
+WORKDIR /build
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/build/playwright-browsers
+RUN npx playwright install --with-deps chromium
+
+FROM cloudron/base:5.0.0@sha256:04fd70dbd8ad6149c19de39e35718e024417c3e01dc9c6637eaf4a41ec4e596c
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends nginx supervisor gettext-base \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /app/code
+WORKDIR /app/code
+
+COPY --from=build /build/node_modules /app/code/node_modules
+COPY --from=build /build/playwright-browsers /app/code/playwright-browsers
+COPY --from=build /build/package.json /app/code/package.json
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/app/code/playwright-browsers
+RUN cd /app/code && npx playwright install-deps chromium
+
+COPY nginx.conf.template admin.html.template supervisord.conf run-mcp.sh start.sh /app/code/
+
+RUN chmod +x /app/code/start.sh /app/code/run-mcp.sh
+
+CMD [ "/app/code/start.sh" ]

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Playwright MCP</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    code, pre { background: #f4f4f5; padding: 0.15em 0.35em; border-radius: 4px; font-size: 0.9em; }
+    pre { padding: 1rem; overflow-x: auto; }
+    .token { word-break: break-all; user-select: all; }
+    h1 { font-size: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Playwright MCP</h1>
+  <p>Remote browser automation for MCP clients (ChatGPT agents, Cursor, etc.).</p>
+
+  <h2>MCP endpoint</h2>
+  <p><code id="mcp-url">${MCP_PUBLIC_URL}/mcp</code></p>
+
+  <h2>API token</h2>
+  <p class="token"><code id="api-token">${MCP_TOKEN}</code></p>
+  <p><small>Persisted in app storage. Regenerate only by deleting <code>/app/data/api-token</code> via debug shell and restarting.</small></p>
+
+  <h2>Example client config</h2>
+  <pre id="client-config">{
+  "mcpServers": {
+    "playwright": {
+      "url": "${MCP_PUBLIC_URL}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MCP_TOKEN}"
+      }
+    }
+  }
+}</pre>
+
+  <h2>Security</h2>
+  <p>This endpoint can navigate the web and run scripts in a real browser. Use a strong token and restrict who can reach this app.</p>
+</body>
+</html>
