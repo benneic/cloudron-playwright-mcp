@@ -6,7 +6,7 @@
   "version": "0.0.75",
   "website": "https://github.com/benneic/cloudron-playwright-mcp",
   "contactEmail": "ben@benneic.com",
-  "iconUrl": "https://playwright.dev/img/playwright-logo.svg",
+  "iconUrl": "https://raw.githubusercontent.com/benneic/cloudron-playwright-mcp/main/media/logo.svg",
   "packagerName": "Ben Neic",
   "packagerUrl": "https://github.com/benneic",
   "tags": [
@@ -14,7 +14,9 @@
     "ai",
     "mcp"
   ],
-  "mediaLinks": [],
+  "mediaLinks": [
+    "https://raw.githubusercontent.com/benneic/cloudron-playwright-mcp/main/media/logo.svg"
+  ],
   "description": "file://DESCRIPTION.md",
   "changelog": "file://CHANGELOG",
   "postInstallMessage": "file://POSTINSTALL.md",

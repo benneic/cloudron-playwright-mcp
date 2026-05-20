@@ -10,7 +10,7 @@
                 "version": "0.0.75",
                 "website": "https://github.com/benneic/cloudron-playwright-mcp",
                 "contactEmail": "ben@benneic.com",
-                "iconUrl": "https://playwright.dev/img/playwright-logo.svg",
+                "iconUrl": "https://raw.githubusercontent.com/benneic/cloudron-playwright-mcp/main/media/logo.svg",
                 "packagerName": "Ben Neic",
                 "packagerUrl": "https://github.com/benneic",
                 "tags": [
@@ -34,7 +34,7 @@
                 "dockerImage": "ghcr.io/benneic/cloudron-playwright-mcp:0.0.75@sha256:61fdb3076f2bd352bc097f8fa48ab9e444c7b0871a93774aa723b1ad460d5128"
             },
             "creationDate": "Tue, 19 May 2026 23:28:40 GMT",
-            "ts": "Tue, 19 May 2026 23:31:43 GMT",
+            "ts": "Wed, 20 May 2026 00:53:35 GMT",
             "publishState": "published"
         }
     }
