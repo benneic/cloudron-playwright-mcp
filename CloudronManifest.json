@@ -22,8 +22,13 @@
   "postInstallMessage": "file://POSTINSTALL.md",
   "healthCheckPath": "/health",
   "httpPort": 8000,
-  "configurePath": "/admin",
   "memoryLimit": 2147483648,
+  "checklist": {
+    "api_token": {
+      "message": "Copy the MCP API token from /app/data/api-token using Console → File Manager, or: cloudron exec --app <app> -- cat /app/data/api-token. MCP URL: $CLOUDRON-APP-ORIGIN/mcp",
+      "sso": false
+    }
+  },
   "minBoxVersion": "9.1.0",
   "addons": {
     "localstorage": {}

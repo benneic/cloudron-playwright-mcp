@@ -1,8 +1,26 @@
 # Playwright MCP is installed
 
-1. Open **Configure** in the Cloudron app dashboard (or visit `$CLOUDRON-APP-ORIGIN/admin`).
-2. Copy the **API token** and MCP URL.
-3. Add the server to your MCP client:
+## Get your API token
+
+The Bearer token is **not** exposed on a public web page. Retrieve it using Cloudron admin tools only:
+
+**File Manager** (recommended)
+
+1. Open this app in the Cloudron dashboard.
+2. Open **Console** → **File Manager**.
+3. Open `/app/data/api-token` and copy the token (single line, no spaces).
+
+**Shell**
+
+```bash
+cloudron exec --app $CLOUDRON-APP-FQDN -- cat /app/data/api-token
+```
+
+## MCP endpoint
+
+`$CLOUDRON-APP-ORIGIN/mcp`
+
+## Client configuration
 
 ```json
 {
@@ -17,12 +35,10 @@
 }
 ```
 
+## Environment variables
+
+Cloudron cannot display auto-generated secrets from inside the container in the **Environment** UI. The token lives in `/app/data/api-token` only. You may optionally copy it into a custom env var for your own reference; the app does not read env vars for authentication.
+
 ## Security
 
-This app can browse arbitrary websites and execute page scripts. Treat the API token like a password. Use a dedicated app instance and restrict network access if needed.
-
-## Catalog URL
-
-To install on other Cloudron servers, add this community app URL in the dashboard:
-
-`https://raw.githubusercontent.com/benneic/cloudron-playwright-mcp/main/CloudronVersions.json`
+This app can browse arbitrary websites and execute page scripts. Treat the API token like a password.

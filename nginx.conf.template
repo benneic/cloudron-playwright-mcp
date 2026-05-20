@@ -26,11 +26,6 @@ http {
             return 200 'ok';
         }
 
-        location = /admin {
-            alias /run/app/admin.html;
-            default_type text/html;
-        }
-
         location /mcp {
             if ($http_authorization != "Bearer ${MCP_TOKEN}") {
                 return 401;

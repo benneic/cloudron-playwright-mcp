@@ -24,7 +24,7 @@ COPY --from=build /build/package.json /app/code/package.json
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/code/playwright-browsers
 RUN cd /app/code && npx playwright install-deps chromium
 
-COPY nginx.conf.template admin.html.template supervisord.conf run-mcp.sh start.sh /app/code/
+COPY nginx.conf.template supervisord.conf run-mcp.sh start.sh /app/code/
 
 RUN chmod +x /app/code/start.sh /app/code/run-mcp.sh
 

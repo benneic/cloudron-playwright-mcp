@@ -5,7 +5,7 @@ Self-host [Microsoft Playwright MCP](https://playwright.dev/mcp/) on your Cloudr
 ## Features
 
 - Streamable HTTP MCP at `/mcp` (TLS terminated by Cloudron)
-- Bearer API token generated on first start (shown on the Configure page)
+- Bearer API token generated on first start; retrieve via Cloudron File Manager (`/app/data/api-token`)
 - Accessibility snapshots, screenshots, navigation, forms, network mocking, and more
 - No LLM required on the server — your agent supplies the intelligence
 - Persistent API token and browser output under `/app/data`

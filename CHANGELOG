@@ -2,5 +2,6 @@
 * Initial release packaging @playwright/mcp 0.0.75
 * Add hosted logo for Cloudron catalog mediaLinks requirement
 * Fix nginx temp paths on Cloudron read-only filesystem (/run/nginx)
+* Remove public /admin page; document token retrieval via File Manager and checklist
 * HTTP MCP on port 8000 with Bearer token auth
 * Admin page at /admin for connection details
