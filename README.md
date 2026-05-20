@@ -18,7 +18,10 @@ cloudron install --versions-url https://raw.githubusercontent.com/benneic/cloudr
 
 ## After install
 
-In the Cloudron app dashboard, see the post-install message and checklist. Copy the API token from `/app/data/api-token` via **Console → File Manager** or `cloudron exec --app <fqdn> -- cat /app/data/api-token`. MCP URL: `https://<your-app-fqdn>/mcp`.
+In the Cloudron app dashboard, see the post-install message and checklist. Copy the API token from `/app/data/api-token` via **Console → File Manager** 
+or `cloudron exec --app <fqdn> -- cat /app/data/api-token`.
+
+MCP URL: `https://<your-app-fqdn>/mcp`.
 
 ## Build and publish (maintainers)
 
