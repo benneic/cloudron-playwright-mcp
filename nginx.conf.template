@@ -10,6 +10,13 @@ http {
     access_log /dev/stdout;
     sendfile on;
 
+    # Cloudron root filesystem is read-only; use /run for nginx writable paths
+    client_body_temp_path /run/nginx/body;
+    proxy_temp_path /run/nginx/proxy;
+    fastcgi_temp_path /run/nginx/fastcgi;
+    uwsgi_temp_path /run/nginx/uwsgi;
+    scgi_temp_path /run/nginx/scgi;
+
     server {
         listen 8000 default_server;
         server_name _;
