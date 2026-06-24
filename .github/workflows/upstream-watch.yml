@@ -1,0 +1,226 @@
+# Weekly: if @playwright/mcp has a new npm release, bump main, build, publish catalog, tag.
+name: Upstream release watch
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: upstream-release
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: benneic/cloudron-playwright-mcp
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      action: ${{ steps.plan.outputs.action }}
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Sync main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git pull --ff-only origin main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Get latest @playwright/mcp version
+        id: meta
+        run: |
+          set -eux
+          U=$(npm view @playwright/mcp version)
+          echo "version=$U" >> "$GITHUB_OUTPUT"
+          echo "Latest @playwright/mcp: $U"
+
+      - name: Plan release action
+        id: plan
+        run: |
+          set -eux
+          UP="${{ steps.meta.outputs.version }}"
+          CUR=$(node -p "require('./package.json').dependencies['@playwright/mcp']")
+          if [ -z "$CUR" ]; then
+            echo "Could not read @playwright/mcp from package.json" >&2
+            exit 1
+          fi
+
+          if jq -e ".versions[\"${UP}\"]" CloudronVersions.json >/dev/null; then
+            echo "action=none" >> "$GITHUB_OUTPUT"
+            echo "Version ${UP} already published in CloudronVersions.json" >&2
+            exit 0
+          fi
+
+          if dpkg --compare-versions "$UP" "gt" "$CUR" 2>/dev/null; then
+            echo "action=bump" >> "$GITHUB_OUTPUT"
+            echo "Will bump from ${CUR} to ${UP}" >&2
+            exit 0
+          fi
+
+          if [ "$UP" = "$CUR" ]; then
+            echo "action=release" >> "$GITHUB_OUTPUT"
+            echo "package.json is at ${UP}; will build and publish catalog entry" >&2
+            exit 0
+          fi
+
+          echo "action=none" >> "$GITHUB_OUTPUT"
+          echo "npm ${UP} is not newer than package.json ${CUR}" >&2
+
+  bump:
+    needs: plan
+    if: needs.plan.outputs.action == 'bump'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Sync main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git pull --ff-only origin main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Apply version bump
+        run: |
+          set -eux
+          U="${{ needs.plan.outputs.version }}"
+          npm install "@playwright/mcp@${U}" --save
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('CloudronManifest.json', 'utf8'));
+            m.version = process.argv[1];
+            fs.writeFileSync('CloudronManifest.json', JSON.stringify(m, null, 2) + '\n');
+          " "$U"
+          ctmp=$(mktemp)
+          {
+            echo "[$U]"
+            echo "* Bump @playwright/mcp to $U."
+            echo
+            cat CHANGELOG
+          } > "$ctmp" && mv "$ctmp" CHANGELOG
+
+      - name: Commit version bump to main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eux
+          U="${{ needs.plan.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git add package.json package-lock.json CloudronManifest.json CHANGELOG
+          git commit -m "chore: bump @playwright/mcp to ${U}"
+          git push origin HEAD:main
+
+  release:
+    needs: [plan, bump]
+    if: |
+      needs.plan.outputs.action == 'release' ||
+      (needs.plan.outputs.action == 'bump' && needs.bump.result == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Sync main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git pull --ff-only origin main
+
+      - name: Verify package version
+        run: |
+          set -eux
+          V="${{ needs.plan.outputs.version }}"
+          PKG=$(node -p "require('./package.json').dependencies['@playwright/mcp']")
+          MAN=$(jq -r .version CloudronManifest.json)
+          if [ "$PKG" != "$V" ] || [ "$MAN" != "$V" ]; then
+            echo "Version $V != package.json ($PKG) or manifest ($MAN)" >&2
+            exit 1
+          fi
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.cloudron
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.plan.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Publish catalog on main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eux
+          VER="${{ needs.plan.outputs.version }}"
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VER}@${{ steps.build.outputs.digest }}"
+
+          if jq -e ".versions[\"${VER}\"]" CloudronVersions.json >/dev/null; then
+            echo "Version ${VER} already in CloudronVersions.json on main"
+            exit 0
+          fi
+
+          node scripts/update-cloudron-versions.mjs "${IMAGE}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git add CloudronVersions.json
+          git commit -m "chore(versions): publish v${VER} in Cloudron catalog"
+          git push origin main
+          echo "Published ${VER} -> ${IMAGE}"
+
+      - name: Create and push release tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eux
+          U="${{ needs.plan.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --tags origin "refs/tags/v${U}" | grep -q .; then
+            echo "Tag v${U} already exists"
+            exit 0
+          fi
+          git tag -a "v${U}" -m "Release @playwright/mcp ${U} for Cloudron"
+          git push origin "v${U}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.plan.outputs.version }}
+          name: v${{ needs.plan.outputs.version }}
+          generate_release_notes: true
