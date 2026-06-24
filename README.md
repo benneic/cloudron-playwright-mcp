@@ -25,10 +25,7 @@ MCP URL: `https://<your-app-fqdn>/mcp`.
 
 ## Build and publish (maintainers)
 
-### Automated (recommended)
-
-1. **Upstream watch (weekly / manual)** — [upstream-watch.yml](.github/workflows/upstream-watch.yml) checks npm for a newer [@playwright/mcp](https://www.npmjs.com/package/@playwright/mcp) release. When needed it bumps `package.json` on `main`, builds and pushes `ghcr.io/benneic/cloudron-playwright-mcp:<ver>`, updates [CloudronVersions.json](CloudronVersions.json), and creates tag `v<ver>`. If `main` already matches npm but the catalog entry is missing, it builds and publishes without re-bumping.
-2. **Release (manual)** — [release.yml](.github/workflows/release.yml) via **Actions → Release → Run workflow** with an `mcp_version`.
+[upstream-watch.yml](.github/workflows/upstream-watch.yml) checks npm for a newer [@playwright/mcp](https://www.npmjs.com/package/@playwright/mcp) release every Monday (06:00 UTC), or on demand via **Actions → Upstream release watch → Run workflow**. When needed it bumps `package.json` on `main`, builds and pushes `ghcr.io/benneic/cloudron-playwright-mcp:<ver>`, updates [CloudronVersions.json](CloudronVersions.json), and creates tag `v<ver>`. If `main` already matches npm but the catalog entry is missing, it builds and publishes without re-bumping.
 
 **Requirements:** GitHub → Settings → Actions → General → workflow permissions **Read and write**. If `main` is branch-protected, allow `github-actions[bot]` to push.
 

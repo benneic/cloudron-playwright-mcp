@@ -15,6 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   REGISTRY: ghcr.io
   IMAGE_NAME: benneic/cloudron-playwright-mcp
 
@@ -149,6 +150,10 @@ jobs:
         run: |
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git pull --ff-only origin main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
 
       - name: Verify package version
         run: |
