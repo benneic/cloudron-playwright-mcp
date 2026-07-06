@@ -3,6 +3,6 @@
   "private": true,
   "description": "Cloudron package for @playwright/mcp",
   "dependencies": {
-    "@playwright/mcp": "0.0.76"
+    "@playwright/mcp": "^0.0.77"
   }
 }

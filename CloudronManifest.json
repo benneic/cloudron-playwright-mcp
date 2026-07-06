@@ -3,7 +3,7 @@
   "title": "Playwright MCP",
   "author": "Ben Neic <ben@benneic.com>",
   "tagline": "Remote Playwright browser automation for MCP agents over HTTP",
-  "version": "0.0.76",
+  "version": "0.0.77",
   "website": "https://github.com/benneic/cloudron-playwright-mcp",
   "contactEmail": "ben@benneic.com",
   "iconUrl": "https://raw.githubusercontent.com/benneic/cloudron-playwright-mcp/main/media/logo.svg",
