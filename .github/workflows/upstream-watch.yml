@@ -54,7 +54,7 @@ jobs:
         run: |
           set -eux
           UP="${{ steps.meta.outputs.version }}"
-          CUR=$(node -p "require('./package.json').dependencies['@playwright/mcp']")
+          CUR=$(node -p "require('./package.json').dependencies['@playwright/mcp'].replace(/^[\^~]/, '')")
           if [ -z "$CUR" ]; then
             echo "Could not read @playwright/mcp from package.json" >&2
             exit 1
@@ -105,7 +105,7 @@ jobs:
         run: |
           set -eux
           U="${{ needs.plan.outputs.version }}"
-          npm install "@playwright/mcp@${U}" --save
+          npm install "@playwright/mcp@${U}" --save --save-exact
           node -e "
             const fs = require('fs');
             const m = JSON.parse(fs.readFileSync('CloudronManifest.json', 'utf8'));
@@ -135,9 +135,12 @@ jobs:
 
   release:
     needs: [plan, bump]
+    # !cancelled() is required: without a status function, a skipped `bump` skips this job too.
     if: |
-      needs.plan.outputs.action == 'release' ||
-      (needs.plan.outputs.action == 'bump' && needs.bump.result == 'success')
+      !cancelled() && (
+        needs.plan.outputs.action == 'release' ||
+        (needs.plan.outputs.action == 'bump' && needs.bump.result == 'success')
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -159,7 +162,7 @@ jobs:
         run: |
           set -eux
           V="${{ needs.plan.outputs.version }}"
-          PKG=$(node -p "require('./package.json').dependencies['@playwright/mcp']")
+          PKG=$(node -p "require('./package.json').dependencies['@playwright/mcp'].replace(/^[\^~]/, '')")
           MAN=$(jq -r .version CloudronManifest.json)
           if [ "$PKG" != "$V" ] || [ "$MAN" != "$V" ]; then
             echo "Version $V != package.json ($PKG) or manifest ($MAN)" >&2
@@ -229,3 +232,15 @@ jobs:
           tag_name: v${{ needs.plan.outputs.version }}
           name: v${{ needs.plan.outputs.version }}
           generate_release_notes: true
+
+  # GitHub disables scheduled workflows after 60 days without repository activity;
+  # re-enabling via the API on every run resets that timer.
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Keep scheduled workflow enabled
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/upstream-watch.yml/enable"
